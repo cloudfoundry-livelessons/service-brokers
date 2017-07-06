@@ -28,8 +28,15 @@ public class SendMailTest {
     private MailgunService service;
 
     @Test
+    public void should_create_route() throws Throwable {
+        this.service.createRoute(0, "a route", "match_recipient('bob@applicationconcierge.com')",
+                "forward(\"starbuxman@gmail.com\")"); //store(notify="http://cfll-mailgun-inbound.cfapps.io/inbound") <- action
+    }
+
+    @Test
     public void should_send_email() throws Throwable {
-        this.service.send(new String[]{"starbuxman@gmail.com"},
+        this.service.send("bob@hi.com",
+                new String[]{"starbuxman@gmail.com"},
                 "Re: your face", "<b> hello world</b>");
     }
 }
