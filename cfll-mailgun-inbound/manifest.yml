@@ -1,0 +1,13 @@
+---
+applications:
+- name: cfll-mailgun-inbound
+  memory: 512M
+  instances: 1
+  host: cfll-mailgun-inbound
+  path: target/cfll-mailgun-inbound.jar
+  # services:
+  #   - cf-sendgrid
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+  #   DEBUG: "true"
+  #   debug: "true"
