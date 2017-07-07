@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -129,7 +126,7 @@ class DefaultServiceInstanceBindingService implements ServiceInstanceBindingServ
         credentials.put("smtpPort", smtpExchange.getSmtpPort());
         credentials.put("sslPort", smtpExchange.getSslPort());
         credentials.put("tlsPort", smtpExchange.getTlsPort());
-        credentials.put("smtpServer", smtpExchange.getMailgunSmtpServer());
+        credentials.put("smtpServer", smtpExchange.getSmtpServer());
         credentials.put("login", smtpExchange.getLogin());
         credentials.put("password", smtpExchange.getPassword());
         ServiceInstanceBinding serviceInstanceBinding = this.repository.save(
@@ -142,7 +139,7 @@ class DefaultServiceInstanceBindingService implements ServiceInstanceBindingServ
                         smtpExchange.getTlsPort(),
                         smtpExchange.getLogin(),
                         smtpExchange.getPassword(),
-                        smtpExchange.getMailgunSmtpServer().toString()));
+                        smtpExchange.getSmtpServer().toString()));
         this.repository.save(serviceInstanceBinding);
         return new CreateServiceInstanceAppBindingResponse()
                 .withCredentials(credentials);

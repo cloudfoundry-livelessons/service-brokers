@@ -43,7 +43,7 @@ public class MailgunService {
     public static class SmtpCredentials {
         private int smtpPort = 25;
         private int sslPort = 587;
-        private final URI mailgunSmtpServer = URI.create("smtp.mailgun.org");
+        private final URI smtpServer = URI.create("smtp.mailgun.org");
         private int tlsPort = 465;
 
         public SmtpCredentials(String login, String password, String domain) {
