@@ -1,0 +1,5 @@
+{
+  "filter":"read-only",
+  "action": "an-action",
+  "permissions": "read-only"
+}
