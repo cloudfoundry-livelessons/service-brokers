@@ -76,6 +76,7 @@ class ServiceInstanceBinding {
 @Service
 @Slf4j
 class DefaultServiceInstanceBindingService implements ServiceInstanceBindingService {
+
     private final MailgunService mailgunService;
     private final ServiceInstanceBindingRepository repository;
 
@@ -88,47 +89,45 @@ class DefaultServiceInstanceBindingService implements ServiceInstanceBindingServ
     public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
             CreateServiceInstanceBindingRequest create) {
 
-        return Optional
-                .ofNullable(repository.findOne(create.getBindingId()))
-                .map(sib -> {
-                    String login = UUID.randomUUID().toString();
-                    String pw = UUID.randomUUID().toString().substring(0, 30);
+        if (repository.findOne(create.getBindingId()) != null) {
+            throw new ServiceInstanceBindingExistsException(
+                create.getServiceInstanceId(), create.getBindingId());
+        }
 
-                    MailgunService.SmtpCredentials smtpExchange = this.mailgunService.createSmtpExchange(login, pw);
+        String login = UUID.randomUUID().toString();
+        String pw = UUID.randomUUID().toString().substring(0, 30);
 
-                    Map<String, Object> credentials = new HashMap<>();
-                    credentials.put("smtpPort", smtpExchange.getSmtpPort());
-                    credentials.put("sslPort", smtpExchange.getSslPort());
-                    credentials.put("tlsPort", smtpExchange.getTlsPort());
-                    credentials.put("smtpServer", smtpExchange.getSmtpServer());
-                    credentials.put("login", smtpExchange.getLogin());
-                    credentials.put("password", smtpExchange.getPassword());
-                    ServiceInstanceBinding serviceInstanceBinding = this.repository.save(
-                            new ServiceInstanceBinding(UUID.randomUUID().toString(),
-                                    create.getServiceInstanceId(),
-                                    create.getBoundAppGuid(),
-                                    null,
-                                    smtpExchange.getSmtpPort(),
-                                    smtpExchange.getSslPort(),
-                                    smtpExchange.getTlsPort(),
-                                    smtpExchange.getLogin(),
-                                    smtpExchange.getPassword(),
-                                    smtpExchange.getSmtpServer().toString()));
-                    this.repository.save(serviceInstanceBinding);
-                    return new CreateServiceInstanceAppBindingResponse()
-                        .withCredentials(credentials);
-                })
-                .orElseThrow(() -> new ServiceInstanceBindingExistsException(
-                        create.getServiceInstanceId(), create.getBindingId()));
+        MailgunService.SmtpCredentials smtpExchange = this.mailgunService
+                .createSmtpExchange(login, pw);
 
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("smtpPort", smtpExchange.getSmtpPort());
+        credentials.put("sslPort", smtpExchange.getSslPort());
+        credentials.put("tlsPort", smtpExchange.getTlsPort());
+        credentials.put("smtpServer", smtpExchange.getSmtpServer());
+        credentials.put("login", smtpExchange.getLogin());
+        credentials.put("password", smtpExchange.getPassword());
+
+        this.repository.save(
+                new ServiceInstanceBinding(UUID.randomUUID().toString(),
+                        create.getServiceInstanceId(),
+                        create.getBoundAppGuid(),
+                        null,
+                        smtpExchange.getSmtpPort(),
+                        smtpExchange.getSslPort(),
+                        smtpExchange.getTlsPort(),
+                        smtpExchange.getLogin(),
+                        smtpExchange.getPassword(),
+                        smtpExchange.getSmtpServer().toString()));
+        return new CreateServiceInstanceAppBindingResponse()
+                .withCredentials(credentials);
     }
 
     @Override
     public void deleteServiceInstanceBinding(
             DeleteServiceInstanceBindingRequest delete) {
 
-        Optional
-                .of(delete.getBindingId())
+        Optional.ofNullable(delete.getBindingId())
                 .ifPresent(sid ->
                         Optional.ofNullable(repository.findOne(sid))
                                 .ifPresent(repository::delete));
