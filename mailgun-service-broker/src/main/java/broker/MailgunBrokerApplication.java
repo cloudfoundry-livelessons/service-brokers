@@ -32,22 +32,17 @@ public class MailgunBrokerApplication {
 @Configuration
 class CatalogConfiguration {
 
-    private final static String ID = "9876543210";
-    private final String spacePrefix;
-
-    CatalogConfiguration(@Value("${vcap.application.space_id:${USER:}}") String spaceId) {
-        this.spacePrefix = spaceId + '-';
-    }
-
     @Bean
-    Catalog catalog(@Value("${spring.application.name}") String appName) {
+    Catalog catalog(@Value("${spring.application.name}") String appName,
+                    @Value("${vcap.application.space_id:${USER:}}") String spacePrefix ) {
+        String ID = "9876543210";
         Map<String, Object> metadata = Collections.singletonMap("costs",
                 Collections.singletonMap("free", true));
-        Plan basic = new Plan(this.spacePrefix + ID + "-plan", "basic",
+        Plan basic = new Plan(spacePrefix + ID + "-plan", "basic",
                 "Mailgun route config service", metadata, true);
         ServiceDefinition definition = new ServiceDefinition(
-                this.spacePrefix + ID + "-service-definition",
-                appName, "Provides Mailgun access", true, Collections.singletonList(basic));
+                spacePrefix + ID + "-service-definition",
+                appName, "creates a Mailgun SMTP exchange", true, Collections.singletonList(basic));
         return new Catalog(Collections.singletonList(definition));
     }
 }
@@ -91,7 +86,7 @@ class DefaultServiceInstanceBindingService implements ServiceInstanceBindingServ
 
         if (repository.findOne(create.getBindingId()) != null) {
             throw new ServiceInstanceBindingExistsException(
-                create.getServiceInstanceId(), create.getBindingId());
+                    create.getServiceInstanceId(), create.getBindingId());
         }
 
         String login = UUID.randomUUID().toString();
@@ -134,11 +129,6 @@ class DefaultServiceInstanceBindingService implements ServiceInstanceBindingServ
     }
 }
 
-
-/**
- * This is a noop because we don't need to provision the service.
- * It's already provisioned. we only act on binding.
- */
 @Service
 class DefaultServiceInstanceService implements ServiceInstanceService {
 
