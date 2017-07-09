@@ -106,9 +106,8 @@ class DefaultServiceInstanceBindingService implements ServiceInstanceBindingServ
                     create.getServiceInstanceId(), create.getBindingId());
 
         // todo create a route using the incoming parameters; store info in the binding instance
-        Map<String, Object> createParameters = create.getParameters();
-        createParameters.forEach((k, v) -> log.info(k + '=' + v));
-
+        Map<String, Object> parameters = create.getParameters();
+        parameters.forEach((k, v) -> log.info(k + '=' + v));
 
         Map<String, String> map = new HashMap<>();
         map.put("bindingId", create.getBindingId());
